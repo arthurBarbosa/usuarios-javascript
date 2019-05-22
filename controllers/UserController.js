@@ -7,13 +7,12 @@ class UserController {
     this.onEditCancel();
   }
 
-  onEditCancel(){
-    document.querySelector("#form-user-update .btn-cancel").addEventListener("click", e =>{
-      this.showPanelCreate();
-    });
-
-    
-        
+  onEditCancel() {
+    document
+      .querySelector("#form-user-update .btn-cancel")
+      .addEventListener("click", e => {
+        this.showPanelCreate();
+      });
   }
 
   onSubmit() {
@@ -26,7 +25,7 @@ class UserController {
 
       let values = this.getValues();
 
-      if(!values) return false;
+      if (!values) return false;
 
       this.getPhoto().then(
         content => {
@@ -77,10 +76,12 @@ class UserController {
     let isValid = true;
 
     [...this.formEl.elements].forEach(function(field, index) {
-
-      if(['name', 'email', 'password'].indexOf(field.name)> -1 && !field.value){
-        field.parentElement.classList.add('has-error');
-        isValid =false;
+      if (
+        ["name", "email", "password"].indexOf(field.name) > -1 &&
+        !field.value
+      ) {
+        field.parentElement.classList.add("has-error");
+        isValid = false;
       }
 
       if (field.name == "gender") {
@@ -94,8 +95,8 @@ class UserController {
       }
     });
 
-    if(!isValid){
-      return false
+    if (!isValid) {
+      return false;
     }
 
     return new User(
@@ -115,8 +116,8 @@ class UserController {
 
     tr.dataset.user = JSON.stringify(dataUser);
 
-    tr.innerHTML = `                  
-    
+    tr.innerHTML = `
+
         <td><img src="${
           dataUser.photo
         }" alt="User Image" class="img-circle img-sm"></td>
@@ -128,68 +129,71 @@ class UserController {
         <button type="button" class="btn btn-primary btn-edit btn-xs btn-flat">Editar</button>
         <button type="button" class="btn btn-danger btn-xs btn-flat">Excluir</button>
       </td>
-    
+
     `;
 
-      tr.querySelector('.btn-edit').addEventListener("click", e=>{
-        
-        let json = JSON.parse(tr.dataset.user);
-        let form = document.querySelector("#form-user-update");
+    tr.querySelector(".btn-edit").addEventListener("click", e => {
+      let json = JSON.parse(tr.dataset.user);
+      let form = document.querySelector("#form-user-update");
 
-        for (let name in json){
-          let field = form.querySelector("[name=" + name.replace('_', '') + "]");
+      for (let name in json) {
+        let field = form.querySelector("[name=" + name.replace("_", "") + "]");
 
-        if(field){
-           if(field.type == 'file') continue;
-             field.value = json[name];
-        
+        if (field) {
+          switch (field.type) {
+            case "file":
+              continue;
+              break;
+
+            case "radio":
+              field = form.querySelector(
+                "[name=" + name.replace("_", "") + "][value=" + json[name] + "]"
+              );
+              field.checked = true;
+              break;
+
+            case "checkbox":
+              field.checked = json[name];
+              break;
+
+            default:
+              field.value = json[name];
+          }
         }
-        }
-        
-        this.showPanelUpdate();
-      
-      })
+      }
 
-      
+      this.showPanelUpdate();
+    });
 
     this.tableEl.appendChild(tr);
 
     this.updateCount();
   }
 
-  showPanelCreate(){
-    document.querySelector('#box-user-create').style.display = "block";
-    document.querySelector('#box-user-update').style.display = "none";
+  showPanelCreate() {
+    document.querySelector("#box-user-create").style.display = "block";
+    document.querySelector("#box-user-update").style.display = "none";
   }
 
-  showPanelUpdate(){
-    document.querySelector('#box-user-create').style.display = "none";
-    document.querySelector('#box-user-update').style.display = "block";
-
+  showPanelUpdate() {
+    document.querySelector("#box-user-create").style.display = "none";
+    document.querySelector("#box-user-update").style.display = "block";
   }
 
-  updateCount(){
-
+  updateCount() {
     let numberUsers = 0;
     let numberAdmin = 0;
 
-    [...this.tableEl.children].forEach( tr =>{
-
+    [...this.tableEl.children].forEach(tr => {
       numberUsers++;
       let user = JSON.parse(tr.dataset.user);
 
-      if(user._admin) numberAdmin++;
-    
-
+      if (user._admin) numberAdmin++;
     });
-     
-    console.log(numberUsers)
+
+    console.log(numberUsers);
 
     document.querySelector("#numbers-user").innerHTML = numberUsers;
-    document.querySelector("#numbers-user-admin").innerHTML = numberAdmin
-
-   
-    
+    document.querySelector("#numbers-user-admin").innerHTML = numberAdmin;
   }
-
 }
